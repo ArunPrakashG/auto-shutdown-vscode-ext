@@ -1,0 +1,8 @@
+f:\Projects\GitHub-Projects\auto-shutdown-vscode-ext\windows-service\installer\obj\Release\AutoShutdownService.Installer.wixproj.CoreCompileInputs.cache
+f:\Projects\GitHub-Projects\auto-shutdown-vscode-ext\windows-service\installer\obj\Release\cab1.cab
+f:\Projects\GitHub-Projects\auto-shutdown-vscode-ext\windows-service\installer\obj\Release\AutoShutdownService.Installer.msi
+f:\Projects\GitHub-Projects\auto-shutdown-vscode-ext\windows-service\installer\obj\Release\AutoShutdownService.Installer.wixpdb
+f:\Projects\GitHub-Projects\auto-shutdown-vscode-ext\windows-service\installer\obj\Release\AutoShutdownService.Installer.wixproj.BindTracking-neutral.txt
+f:\Projects\GitHub-Projects\auto-shutdown-vscode-ext\windows-service\installer\bin\Release\AutoShutdownService.Installer.msi
+f:\Projects\GitHub-Projects\auto-shutdown-vscode-ext\windows-service\installer\bin\Release\cab1.cab
+f:\Projects\GitHub-Projects\auto-shutdown-vscode-ext\windows-service\installer\bin\Release\AutoShutdownService.Installer.wixpdb

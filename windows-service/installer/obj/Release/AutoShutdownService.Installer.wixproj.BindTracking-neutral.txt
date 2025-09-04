@@ -1,0 +1,5 @@
+BuiltContentOutput	f:\Projects\GitHub-Projects\auto-shutdown-vscode-ext\windows-service\installer\obj\Release\cab1.cab
+BuiltPdbOutput	f:\Projects\GitHub-Projects\auto-shutdown-vscode-ext\windows-service\installer\obj\Release\AutoShutdownService.Installer.wixpdb
+BuiltTargetOutput	f:\Projects\GitHub-Projects\auto-shutdown-vscode-ext\windows-service\installer\obj\Release\AutoShutdownService.Installer.msi
+Input	..\src\AutoShutdownService\bin\Release\net8.0-windows\AutoShutdownService.exe
+Intermediate	f:\Projects\GitHub-Projects\auto-shutdown-vscode-ext\windows-service\installer\obj\Release\cab1.cab

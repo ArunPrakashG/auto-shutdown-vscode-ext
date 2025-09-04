@@ -1,0 +1,110 @@
+{
+    "name": "auto-shutdown-chat",
+    "displayName": "Auto Shutdown Chat",
+    "description": "Chat participant that can trigger a Windows shutdown via a local service when a completion finishes.",
+    "publisher": "your-publisher",
+    "version": "0.0.1",
+    "engines": {
+        "vscode": ">=1.91.0"
+    },
+    "categories": [
+        "Other"
+    ],
+    "main": "./out/extension.js",
+    "activationEvents": [
+        "onChatParticipant:auto-shutdown.participant",
+        "onCommand:auto-shutdown.toggle",
+        "onStartupFinished"
+    ],
+    "contributes": {
+        "commands": [
+            {
+                "command": "auto-shutdown.toggle",
+                "title": "Auto Shutdown: Toggle Enabled"
+            }
+        ],
+        "configuration": {
+            "title": "Auto Shutdown Chat",
+            "properties": {
+                "autoShutdown.enabled": {
+                    "type": "boolean",
+                    "default": false,
+                    "description": "Enable shutdown trigger after this participant finishes streaming a response.",
+                    "scope": "window"
+                },
+                "autoShutdown.dryRun": {
+                    "type": "boolean",
+                    "default": true,
+                    "description": "Dry run mode: signal service with DRYRUN instead of SHUTDOWN.",
+                    "scope": "window"
+                },
+                "autoShutdown.pipeName": {
+                    "type": "string",
+                    "default": "AutoShutdownService",
+                    "description": "Named pipe name for Windows service (will use \\u002E\\u005Cpipe\\u005C<name>).",
+                    "scope": "machine"
+                },
+                "autoShutdown.confirmBeforeShutdown": {
+                    "type": "boolean",
+                    "default": true,
+                    "description": "Ask for confirmation before sending a shutdown signal.",
+                    "scope": "window"
+                },
+                "autoShutdown.timeoutMs": {
+                    "type": "number",
+                    "default": 3000,
+                    "description": "Timeout in milliseconds for the named pipe command.",
+                    "scope": "window",
+                    "minimum": 500,
+                    "maximum": 60000
+                }
+            }
+        },
+        "chatParticipants": [
+            {
+                "id": "auto-shutdown.participant",
+                "name": "auto-shutdown",
+                "fullName": "Auto Shutdown",
+                "description": "Use me when you want to shut down this machine once the answer is done.",
+                "isSticky": false,
+                "commands": [
+                    {
+                        "name": "explain",
+                        "description": "Explain your prompt and then shut down (if enabled)."
+                    }
+                ],
+                "disambiguation": [
+                    {
+                        "category": "shutdown",
+                        "description": "Trigger a system shutdown after answering.",
+                        "examples": [
+                            "Finish this task then shut down",
+                            "Answer my question and power off",
+                            "When done, shut down the PC"
+                        ]
+                    }
+                ]
+            }
+        ]
+    },
+    "scripts": {
+        "vscode:prepublish": "npm run compile",
+        "compile": "tsc -p ./",
+        "watch": "tsc -w -p ./",
+        "package": "vsce package",
+        "lint": "eslint src --ext ts",
+        "build:service": "dotnet build windows-service/src/AutoShutdownService/AutoShutdownService.csproj -c Debug",
+        "test": "npm run compile && npm run build:service && mocha \"test/**/*.test.js\""
+    },
+    "devDependencies": {
+        "@types/node": "^20.12.7",
+        "@types/vscode": "^1.91.0",
+        "@typescript-eslint/eslint-plugin": "^7.1.0",
+        "@typescript-eslint/parser": "^7.1.0",
+        "eslint": "^8.56.0",
+        "typescript": "^5.4.0",
+        "vsce": "^2.15.0",
+        "mocha": "^10.6.0",
+        "@types/mocha": "^10.0.6"
+    }
+}

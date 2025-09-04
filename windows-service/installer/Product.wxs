@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Wix xmlns="http://wixtoolset.org/schemas/v4/wxs">
+  <Package Name="Auto Shutdown Service" Manufacturer="Your Company" Version="1.0.0.0" UpgradeCode="{3D1F0B39-2B5E-49C7-AB4F-2B0A3E88E1A6}">
+    <Feature Id="Main" Title="Auto Shutdown Service" Level="1">
+      <ComponentGroupRef Id="ServiceComponents" />
+    </Feature>
+  </Package>
+
+  <Fragment>
+    <StandardDirectory Id="ProgramFilesFolder">
+      <Directory Id="INSTALLFOLDER" Name="AutoShutdownService" />
+    </StandardDirectory>
+  </Fragment>
+
+  <Fragment>
+    <ComponentGroup Id="ServiceComponents">
+  <Component Directory="INSTALLFOLDER" Id="ServiceExe" Guid="*">
+        <File Id="ServiceFile" Source="..\src\AutoShutdownService\bin\$(var.Configuration)\net8.0-windows\AutoShutdownService.exe" KeyPath="yes" />
+        <ServiceInstall Id="AutoShutdownServiceInstall" Name="AutoShutdownService" DisplayName="Auto Shutdown Service" Type="ownProcess" Start="auto" ErrorControl="normal" Description="Listens for named pipe commands to perform system shutdown." />
+        <ServiceControl Id="AutoShutdownServiceControl" Name="AutoShutdownService" Start="install" Stop="both" Remove="uninstall" Wait="yes" />
+      </Component>
+    </ComponentGroup>
+  </Fragment>
+</Wix>

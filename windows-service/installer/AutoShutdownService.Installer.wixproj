@@ -1,0 +1,13 @@
+<Project Sdk="WixToolset.Sdk/4.0.4">
+  <PropertyGroup>
+    <OutputType>Package</OutputType>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\src\AutoShutdownService\AutoShutdownService.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Include="Product.wxs" />
+  </ItemGroup>
+</Project>

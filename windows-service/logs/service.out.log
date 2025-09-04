@@ -1,0 +1,17 @@
+08:53:24 info: AutoShutdownService.NamedPipeWorker[0] AutoShutdownService starting. Pipe: AutoShutdownService
+08:53:24 info: AutoShutdownService.NamedPipeWorker[0] Waiting for connection...
+08:53:24 info: Microsoft.Hosting.Lifetime[0] Application started. Press Ctrl+C to shut down.
+08:53:24 info: Microsoft.Hosting.Lifetime[0] Hosting environment: Production
+08:53:24 info: Microsoft.Hosting.Lifetime[0] Content root path: F:\Projects\GitHub-Projects\auto-shutdown-vscode-ext
+08:53:28 info: AutoShutdownService.NamedPipeWorker[0] Client connected.
+08:53:28 info: AutoShutdownService.NamedPipeWorker[0] Command: PING
+08:53:28 info: AutoShutdownService.NamedPipeWorker[0] Waiting for connection...
+08:53:53 info: AutoShutdownService.NamedPipeWorker[0] Client connected.
+08:53:53 info: AutoShutdownService.NamedPipeWorker[0] Command: PING
+08:53:53 info: AutoShutdownService.NamedPipeWorker[0] Waiting for connection...
+08:54:14 info: AutoShutdownService.NamedPipeWorker[0] Client connected.
+08:54:14 info: AutoShutdownService.NamedPipeWorker[0] Command: PING
+08:54:14 info: AutoShutdownService.NamedPipeWorker[0] Waiting for connection...
+08:54:18 info: AutoShutdownService.NamedPipeWorker[0] Client connected.
+08:54:18 info: AutoShutdownService.NamedPipeWorker[0] Command: DRYRUN
+08:54:18 info: AutoShutdownService.NamedPipeWorker[0] Waiting for connection...

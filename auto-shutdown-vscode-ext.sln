@@ -1,0 +1,32 @@
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.5.2.0
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "windows-service", "windows-service", "{0F903823-5CC5-C394-FD53-3CC448804DB1}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{24D8CC3D-02CC-DCE2-2856-C91D43CA6605}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AutoShutdownService", "windows-service\src\AutoShutdownService\AutoShutdownService.csproj", "{6FD62C6E-633F-5091-3F7B-DFB3F0B7C4EC}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{6FD62C6E-633F-5091-3F7B-DFB3F0B7C4EC}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{6FD62C6E-633F-5091-3F7B-DFB3F0B7C4EC}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{6FD62C6E-633F-5091-3F7B-DFB3F0B7C4EC}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{6FD62C6E-633F-5091-3F7B-DFB3F0B7C4EC}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{24D8CC3D-02CC-DCE2-2856-C91D43CA6605} = {0F903823-5CC5-C394-FD53-3CC448804DB1}
+		{6FD62C6E-633F-5091-3F7B-DFB3F0B7C4EC} = {24D8CC3D-02CC-DCE2-2856-C91D43CA6605}
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {A9B0F07C-7404-4CBD-B8B3-9F0968D5EFE7}
+	EndGlobalSection
+EndGlobal
