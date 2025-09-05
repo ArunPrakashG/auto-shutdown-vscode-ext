@@ -1,5 +1,44 @@
-out/
+## Node / VS Code extension
 node_modules/
+out/
+dist/
 .vscode-test/
-.DS_Store
 *.vsix
+*.tsbuildinfo
+.eslintcache
+coverage/
+.nyc_output/
+
+## Logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+*.log
+
+## OS cruft
+.DS_Store
+Thumbs.db
+
+## Editors / IDEs
+.idea/
+.vs/
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
+
+## .NET / Visual Studio builds
+**/bin/
+**/obj/
+TestResult*/
+*.VisualState.xml
+
+## WiX / Installer outputs
+*.msi
+*.wixpdb
+*.wixobj
+*.cab
+
+## Local service logs
+windows-service/logs/**

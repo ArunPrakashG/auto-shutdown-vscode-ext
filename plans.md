@@ -27,6 +27,7 @@ Build a VS Code extension that detects when a chat completion finishes (we will 
 - [x] Step 8: WiX v4 MSI project to install/start service; stop/remove on uninstall (skeleton Product.wxs)
 - [x] Step 9: E2E tests: dry-run default; confirmation; service privilege handling (initial IPC PING/DRYRUN validated)
 - [x] Step 10: Documentation for extension and service (initial README with MSI install/start/stop and settings)
+  - 2025-09-05: Overhauled README for GitHub with clear structure: features, architecture, prerequisites, quick start, MSI build/install, configuration (extension + service env overrides), usage, development (vsce notes), troubleshooting, limitations, and license note. Fixed commands and paths, added CI badge.
 
 ## Testing Phase
 
@@ -51,6 +52,7 @@ Build a VS Code extension that detects when a chat completion finishes (we will 
 - 2025-09-04: Added small retry/backoff in VS Code extension PipeClient (ENOENT/ECONNREFUSED/EPIPE/ECONNRESET + timeout). Documented MSI build/install and extension settings. Added Mocha tests for IPC (PING and ERR unknown). Pending: timeout-focused unit test and CI wiring.
 - 2025-09-04: Implemented timeout-focused Mocha test using a Node named-pipe server that accepts but does not respond; verified PipeClient throws timeout. Wired npm test to compile TS and build the .NET service first.
 - 2025-09-04: Added GitHub Actions CI for Windows (Node 20, .NET 8) to lint and test. Enhanced service logging to include Windows Event Log provider when available. Updated README with CI and manual shutdown validation steps.
+- 2025-09-05: Reviewed VS Code Chat Participant API and publishing docs; verified `onChatParticipant:` activation and `vsce` usage are current. Verified WiX v4 ServiceInstall/ServiceControl pattern in `Product.wxs`. Updated README to be GitHub-ready with accurate PowerShell commands, MSI project path, and env var overrides.
 
 ## Quality Gates
 

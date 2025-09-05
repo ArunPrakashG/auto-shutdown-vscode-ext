@@ -1,128 +1,192 @@
 # Auto Shutdown VS Code Extension and Windows Service
 
-This workspace contains:
+# Auto Shutdown Chat — VS Code extension + Windows service
 
-- VS Code extension that owns a chat participant and, when enabled, signals a Windows service to initiate a clean shutdown after a completion.
-- Windows service (net8.0-windows) listening on a named pipe for PING/DRYRUN/SHUTDOWN commands. Packaged by a WiX v4 MSI.
+[![CI](https://github.com/ArunPrakashG/auto-shutdown-vscode-ext/actions/workflows/ci.yml/badge.svg)](https://github.com/ArunPrakashG/auto-shutdown-vscode-ext/actions/workflows/ci.yml)
 
-## Quick test of service IPC
+A safety-first VS Code chat participant that can trigger a clean Windows shutdown after a chat response finishes. It talks to a companion Windows service over a named pipe. Disabled by default and ships with dry-run on by default.
 
-- Build the service:
-  - In VS Code terminal: dotnet build windows-service/src/AutoShutdownService/AutoShutdownService.csproj -c Debug
-- Start the service as a console app (for dev):
-  - Start-Process -FilePath windows-service/src/AutoShutdownService/bin/Debug/net8.0-windows/AutoShutdownService.exe -WindowStyle Hidden
-  - Logs are written to windows-service/logs/ if started via the provided scripts.
-- Test the pipe:
-  - node windows-service/tools/test-pipe.js PING → expect "PONG"
-  - node windows-service/tools/test-pipe.js DRYRUN → expect "OK dryrun"
+This repo contains two deliverables:
 
-## Run tests
+- VS Code extension “Auto Shutdown Chat” (TypeScript) that contributes a chat participant `@auto-shutdown` and a command to toggle the feature.
+- Windows service (C#/.NET 8) that listens on a named pipe for `PING`, `DRYRUN`, and `SHUTDOWN` commands. Packaged via a WiX v4 MSI installer.
 
-- npm test
-  - Builds the extension (TypeScript) and the .NET Windows service, then runs Mocha tests.
-  - Includes a timeout test that spins a named-pipe server which deliberately never responds to verify client timeouts.
+Note: This can power off your machine. Validate end-to-end with dry-run before enabling real shutdown.
 
-## CI status
+## ✨ Features
 
-- GitHub Actions workflow runs on Windows to lint and test changes (Node 20 + .NET 8). See `.github/workflows/ci.yml`.
+- VS Code Chat participant: `@auto-shutdown` uses the Language Model API to answer, then optionally signals shutdown when streaming completes.
+- Opt-in with guardrails: global enable/disable, dry-run mode, and confirmation dialog.
+- Reliable IPC: newline-delimited request/response over Windows named pipes with timeout + small retry/backoff.
+- Windows service executes a clean shutdown with `SeShutdownPrivilege` and logs to console and Windows Event Log (when available).
 
-## Manual SHUTDOWN validation (admin)
+## 🧱 Architecture
 
-Warning: This powers off the machine. Keep dry-run on until you’re ready.
+- Extension (client) → Windows named pipe server (service). Default pipe: `\\.\pipe\AutoShutdownService`.
+- Commands supported by the service:
+  - `PING` → `PONG`
+  - `DRYRUN` → `OK dryrun` (if enabled)
+  - `SHUTDOWN` → `ACK shutdown` and then initiates system shutdown
 
-1. Install/start the service (MSI) as Administrator and confirm it’s running:
+Service settings are in `windows-service/src/AutoShutdownService/appsettings.json` and can be overridden via environment variables (see Configuration).
 
-- `Get-Service AutoShutdownService` should show Status: Running.
+## 📦 Prerequisites
 
-2. In VS Code, ensure extension settings:
+- Windows 10/11
+- Node.js 20+
+- .NET SDK 8.0+
+- WiX Toolset v4 (to build the MSI)
 
-- `autoShutdown.enabled = true`
-- `autoShutdown.confirmBeforeShutdown = true` (recommended)
-- `autoShutdown.dryRun = true` (first)
+## 🚀 Install and quick start
 
-3. Trigger a chat with `@auto-shutdown` and verify the service response in chat (OK dryrun).
-4. When ready, set `autoShutdown.dryRun = false` and repeat. Confirm the modal. The system should initiate a clean shutdown.
-5. If shutdown fails, check Windows Event Log: Application → Source `AutoShutdownService` for error details.
+You can validate IPC locally without installing the service as a Windows Service.
 
-Default pipe name: AutoShutdownService (\\.\pipe\AutoShutdownService).
+1. Build the service (Debug) and run it as a console app
 
-## Extension settings
+```powershell
+dotnet build windows-service/src/AutoShutdownService/AutoShutdownService.csproj -c Debug
+& "windows-service/src/AutoShutdownService/bin/Debug/net8.0-windows/AutoShutdownService.exe"
+```
 
-- autoShutdown.enabled: boolean (default false)
-- autoShutdown.dryRun: boolean (default true)
-- autoShutdown.confirmBeforeShutdown: boolean (default true)
-- autoShutdown.pipeName: string (default AutoShutdownService)
-- autoShutdown.timeoutMs: number (default 3000)
+2. Test the named pipe
 
-## Installer
+```powershell
+node windows-service/tools/test-pipe.js PING
+node windows-service/tools/test-pipe.js DRYRUN
+# Expect: PONG, and OK dryrun
+```
 
-- WiX v4 MSI project installs and starts the service with required privileges.
-- Build under windows-service/installer.
+3. Build the extension and run tests
 
-### Build MSI
+```powershell
+npm ci
+npm test
+```
 
-- Requires WiX Toolset v4.
-- Build from repo root:
-  - dotnet build windows-service/installer/installer.wixproj -c Release
-- MSI output will be in windows-service/installer/bin/Release/.
+## 🛠️ MSI install (service)
 
-### Install/Start the service
+Build and install the Windows service via the WiX v4 MSI:
 
-- Install (UI): double-click the MSI.
-- Install (silent, elevated PowerShell):
-  - msiexec /i "path\to\AutoShutdownService.msi" /qn
-- After install the service should be running:
-  - Start: Start-Service AutoShutdownService
-  - Stop: Stop-Service AutoShutdownService
-  - Status: Get-Service AutoShutdownService
-- Logs: Windows Event Log (when installed as service); console/log files when run directly.
+1. Build the MSI
 
-### Troubleshooting
+```powershell
+dotnet build windows-service/installer/AutoShutdownService.Installer.wixproj -c Release
+```
 
-- Pipe not found (ENOENT): Ensure the service is running and listening on the configured pipe name (default AutoShutdownService). Check with Get-Service AutoShutdownService.
-- Access denied on named pipe ACLs: When developing without MSI, run the service from an elevated PowerShell.
-- Rebuild fails due to file lock: Stop the running dev executable: Get-Process AutoShutdownService -ErrorAction SilentlyContinue | Stop-Process -Force.
-- Event Log visibility: Open Event Viewer → Windows Logs → Application, filter by source AutoShutdownService.
-- Uninstall leaves service stopped but present: If MSI uninstall failed, you can remove manually: sc.exe delete AutoShutdownService (run as Administrator).
+MSI output: `windows-service/installer/bin/Release/AutoShutdownService.Installer.msi`.
 
-### Uninstall
+2. Install/start (requires elevated PowerShell)
 
-- msiexec /x "path\to\AutoShutdownService.msi" /qn
+```powershell
+msiexec /i "windows-service/installer/bin/Release/AutoShutdownService.Installer.msi" /qn
+Get-Service AutoShutdownService
+```
 
-## Notes
+Service should report `Status: Running`.
 
-- Service requires SeShutdownPrivilege when executing SHUTDOWN. DRYRUN requires no special privileges.
-- IPC uses newline-delimited one-line commands and responses.
-- Server uses an async read timeout; WriteTimeout is not used (writes are flushed and drained explicitly).
+3. Manage the service
 
-# Auto Shutdown Chat (Extension)
+```powershell
+Start-Service AutoShutdownService
+Stop-Service AutoShutdownService
+Get-Service AutoShutdownService
+```
 
-A VS Code chat participant that, when enabled, signals a local Windows service to shut down the machine after the response finishes streaming.
+4. Uninstall
 
-Safety-first defaults: disabled by default and dry-run enabled.
+```powershell
+msiexec /x "windows-service/installer/bin/Release/AutoShutdownService.Installer.msi" /qn
+```
 
-## Settings
+If MSI uninstall fails, you can remove the service manually (Administrator):
 
-- autoShutdown.enabled: Enable shutdown trigger.
-- autoShutdown.dryRun: Send DRYRUN instead of SHUTDOWN.
-- autoShutdown.pipeName: Named pipe name (server must listen on \\.\pipe\<name>).
-- autoShutdown.confirmBeforeShutdown: Ask for confirmation before signaling.
-- autoShutdown.timeoutMs: Pipe command timeout.
+```powershell
+sc.exe delete AutoShutdownService
+```
 
-## Commands
+## ⚙️ Configuration
 
-- Auto Shutdown: Toggle Enabled (auto-shutdown.toggle)
+### Extension settings (User/Window scope)
 
-## Usage
+- `autoShutdown.enabled` (boolean, default `false`): Enable shutdown signaling after the response finishes.
+- `autoShutdown.dryRun` (boolean, default `true`): Send `DRYRUN` instead of `SHUTDOWN`.
+- `autoShutdown.confirmBeforeShutdown` (boolean, default `true`): Ask for confirmation before signaling.
+- `autoShutdown.pipeName` (string, default `AutoShutdownService`): Named pipe name (server listens on `\\.\pipe\<name>`).
+- `autoShutdown.timeoutMs` (number, default `3000`): IPC timeout.
 
-- Type @auto-shutdown in chat and ask your question. When the response completes, the extension will signal the service per your settings.
-- Toggle enable/disable via the command palette: Auto Shutdown: Toggle Enabled.
-- Keep dry-run on initially (the service will respond with OK dryrun). Switch off dry-run only after full validation.
+### Service settings (appsettings.json or ENV)
 
-## Windows service
+File: `windows-service/src/AutoShutdownService/appsettings.json`
 
-This extension expects a companion Windows service listening on a named pipe. See the service folder for implementation and installer.
+```json
+{
+  "Service": {
+    "PipeName": "AutoShutdownService",
+    "ReadTimeoutMs": 5000,
+    "WriteTimeoutMs": 5000,
+    "AllowDryRun": true
+  }
+}
+```
 
-## Disclaimer
+Environment variable overrides use the `AUTOSHUTDOWN_` prefix and `__` for nesting, for example:
 
-This can power off your machine. Keep dry-run on until you’ve verified end-to-end behavior.
+```powershell
+$env:AUTOSHUTDOWN_Service__PipeName = "AutoShutdownService"
+$env:AUTOSHUTDOWN_Service__AllowDryRun = "true"
+```
+
+## 🧑‍💻 Usage
+
+- Open the Chat view and type `@auto-shutdown <your question>`.
+- The extension will stream the model response. After it completes, and if enabled, it will confirm and then contact the service.
+- Start with dry-run enabled to verify connectivity (`Service response: OK dryrun`). When confident, turn dry-run off.
+
+Command palette: “Auto Shutdown: Toggle Enabled”.
+
+## 🧪 Development
+
+- Compile extension: `npm run compile`
+- Watch: `npm run watch`
+- Package VSIX (optional): `npm run package`
+- Tests (Mocha): `npm test` (compiles TS, builds .NET service, runs tests)
+
+Notes for packaging/publishing with `@vscode/vsce`:
+
+- Install the CLI: `npm i -g @vscode/vsce` (or use `npx @vscode/vsce`).
+- Update `publisher` in `package.json` to your Marketplace publisher ID.
+- `vsce package` creates a `.vsix` you can install locally.
+- `vsce publish` requires a publisher and a Personal Access Token (see VS Code docs).
+
+## 🔍 Troubleshooting
+
+- Pipe not found (ENOENT): Ensure the service is running and the pipe name matches. `Get-Service AutoShutdownService`.
+- Permission/ACL issues: When running the service console app for dev, use an elevated PowerShell so the secure pipe ACL can be created.
+- Timeouts: Increase `autoShutdown.timeoutMs` in the extension or `ReadTimeoutMs` in the service if your environment is slow.
+- Event Log: Event Viewer → Windows Logs → Application → Source: `AutoShutdownService`.
+- File lock on rebuild: `Get-Process AutoShutdownService -ErrorAction SilentlyContinue | Stop-Process -Force`.
+
+## ⚠️ Limitations and notes
+
+- Windows only. Requires Administrator rights to install the service and to initiate shutdown.
+- Not a web extension; requires Node.js `net` and local Windows named pipes.
+- Chat requires a language model selectable in VS Code Chat. If no model is available, the extension reports this in chat.
+
+## 📁 Project layout
+
+```
+src/                    # Extension sources (TypeScript)
+windows-service/        # .NET 8 Windows service + WiX v4 installer
+  src/AutoShutdownService/
+  installer/
+test/                   # Mocha tests (Node)
+```
+
+## 📜 License
+
+No license file is currently included. Consider adding a LICENSE (for example, MIT or Apache-2.0) before publishing.
+
+## 🙌 Acknowledgments
+
+- Uses VS Code Chat Participant and Language Model APIs.
+- WiX Toolset v4 for MSI packaging.

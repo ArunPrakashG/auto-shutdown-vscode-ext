@@ -65,9 +65,9 @@ describe('IPC client basic', function () {
     // const logDir = path.resolve(__dirname, '..', 'windows-service', 'logs');
 
     before((done) => {
-        // Start service if available; ignore if missing
+        // Start service if available; allow extra time for pipe to be ready
         child = spawn(exe, [], { stdio: 'ignore', windowsHide: true });
-        setTimeout(done, 1000);
+        setTimeout(done, 2500);
     });
 
     after((done) => {
